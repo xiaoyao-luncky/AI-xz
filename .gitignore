@@ -1,0 +1,18 @@
+# ESP-IDF编译生成的临时文件，绝对不上传
+sdkconfig
+sdkconfig.old
+/build/
+*.bin
+*.elf
+*.map
+managed_components/
+dependencies.lock
+
+# 编辑器/系统临时文件
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+.叮当
