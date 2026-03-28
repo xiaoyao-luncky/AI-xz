@@ -1,0 +1,42 @@
+
+|——————————opus编解码器
+|————————代码主要逻辑：
+
+
+|————————主要代码功能：
+|——————audio_encode.c:
+|——audio_encode_register_input_ringbuf(audio_encode_t *audio_encode,RingbufHandle_t ringbuf_in):
+{
+给编码器注册输入缓冲区；
+}
+|——audio_encode_register_output_ringbuf(audio_encode_t *audio_encode,RingbufHandle_t ringbuf_out):
+{
+给编码器注册输出缓冲区；
+}
+|——audio_encode_read_buffer_fix_len(RingbufHandle_t input_buffer, uint8_t *pcm_data, int pcm_size):
+{
+从环形缓冲区内取出固定数据；
+定义两个变量data,len用来存储数据和数据长度；
+当被处理数据帧数据长度未达到目标数据长度时，即未凑够pcm_size字节的完整数据；
+取出数据帧给到输入环形缓冲区句柄input_buffer内，并将长度给len；
+通过memcpy函数将data和len存到将要处理的数据缓冲区内；
+将目标长度减去本次读取数据长度；
+目标缓冲区的指针往后移动len个字节，保证下次数据的拼接而非覆盖；
+执行完后释放本次读取的缓冲区内存；
+}
+audio_encode_task(void *arg):encode编码器任务；
+{
+先拿到参数，将arg赋给audio_encode；
+注册一个opus编码器；
+配置opus编码器：采样率16k，通道数：单声道，位深：16bit，编码比特率：90000，帧时长：60ms，应用模式：VOIP；
+               编码复杂度：5，前向纠错：关闭，不连续传输：关闭，可变比特率：关闭；
+将刚刚配置的编码器封装，编码器类型：opus，配置：刚刚的配置，结构体大小；
+打开编码器；
+定义两个变量pam_size,raw_size用来存储处理前后数据的大小;
+定义两个变量pcm_data,raw_data分配输入输出缓冲区,缓存处理前后的数据;
+定义两个数据帧变量in_frame,out_frame存放提取出来的处理前后数据；
+while(1)一直从环形缓冲区内读取固定长度的PCM数据，启动当前编码器处理当前帧；
+将处理后的opus数据写入输出环形缓冲区；
+}
+|——audio_encode_creat(void)：动态创建一个结构体变量；
+|——audio_encode_start(audio_encode_t *audio_encode):创建encode编码器任务；
